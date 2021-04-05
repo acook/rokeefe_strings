@@ -1,0 +1,106 @@
+.TH XSTRING 3C local
+.SH NAME
+strxcat, strxncat, strxcpy, strxncpy, strxmov, strxnmov \- string operations with variable number of arguments
+.SH SYNOPSIS
+.nf
+.PP
+.B "#include <strings.h>"
+.PP
+.B "char \(**strxcat(dst, src1, src2, ..., NullS)"
+.B " char \(**dst, \(**src1, \(**src2, ...;"
+.PP
+.B "char \(**strxncat(dst, len, src1, src2, ..., NullS)"
+.B " char \(**dst, \(**src1, \(**src2, ...;"
+.B " int len;"
+.PP
+.B "char \(**strxcpy(dst, src1, src2, ..., NullS)"
+.B " char \(**dst, \(**src1, \(**src2, ...;"
+.PP
+.B "char \(**strxncpy(dst, len, src1, src2, ..., NullS)"
+.B " char \(**dst, \(**src1, \(**src2, ...;"
+.B " int len;"
+.PP
+.B "char \(**strxmov(dst, src1, src2, ..., NullS)"
+.B " char \(**dst, \(**src1, \(**src2, ...;"
+.PP
+.B "char \(**strxnmov(dst, len, src1, src2, ..., NullS)"
+.B " char \(**dst, \(**src1, \(**src2, ...;"
+.B " int len;"
+.SH DESCRIPTION
+These functions operate on null-terminated strings.
+They are equivalent to the corresponding functions
+.IR strcat (3c),
+.IR strncat (3c),
+.IR strmov (3c),
+.IR strnmov (3c),
+.IR strcpy (3c),
+and
+.IR strncpy (3c),
+except that they allow more than one source string to be supplied.
+.IR Strxcat ,
+.IR strxncat ,
+.IR strxcpy ,
+and
+.I strxncpy
+return their first argument (the destination pointer).
+.I Strxmov
+and
+.I strxnmov
+return a pointer to just after the last non-NUL character
+moved to the destination. This is the same convention that
+is used throughout the strings package.
+Except as implied by the length parameter
+.IR len ,
+they do not check for overflow of any receiving string.
+.PP
+.I Strxcat
+appends a copy of the strings
+.IR src1 ,
+.IR src2 ,
+and so on, to
+.IR dst .
+The resulting string will always be NUL-terminated.
+.I Strxncat
+copies at most
+.I len
+characters.
+The resulting string will be NUL-terminated if fewer than
+.I len
+characters were moved. At most one NUL is added.
+.PP
+.I Strxcpy
+copies the strings
+.IR src1 ,
+.IR src2 ,
+and so on, into
+.IR dst .
+.I Strxncpy
+copies at most
+.I len
+characters.
+The resulting string will not be null-terminated if
+.I len
+or more characters were in the source strings.
+By analogy with
+.IR strncpy ,
+.I dst
+will be padded on the right with NUL characters to exactly
+.I len
+bytes.
+.PP
+Apart from their return value,
+.I strxmov
+and
+.I strxnmov
+have the same effect as
+.I strxcpy
+and
+.IR strxncpy .
+.SH CAVEATS
+The placement for the
+.I len
+variable is different from the placement in the functions
+.IR strncat (3c),
+.IR strncpy (3c),
+and
+.IR strnmov (3c).

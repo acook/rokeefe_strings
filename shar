@@ -1,0 +1,43 @@
+#!/bin/sh
+append=0
+if test $1 = -a
+then
+append=1
+shift
+fi
+verbose=0
+if test $1 = -v
+then
+verbose=1
+shift
+fi
+sharchive=sharchive
+if test $1 = -o
+then
+sharchive=$2
+shift; shift
+fi
+if test $# = 0
+then
+echo "Usage: shar [-a] [-v] [-o sharchive] file..."
+exit
+fi
+if test $append = 0
+then
+echo "#!/bin/sh" >$sharchive
+fi
+for file in $*
+do
+if test "$file" != "$sharchive"
+then
+if test $verbose = 1
+then
+echo archiving $file
+fi
+echo "cat >$file <<'------ EOF ------'" >>$sharchive
+cat $file >>$sharchive
+echo "------ EOF ------" >>$sharchive
+echo "ls -l $file" >>$sharchive
+fi
+done
+chmod +x $sharchive

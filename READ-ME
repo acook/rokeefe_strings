@@ -1,0 +1,131 @@
+File : READ-ME
+Author : Richard A. O'Keefe.
+Updated: 1 June 1984.
+Purpose: Explain the new strings package.
+
+The UNIX string libraries (described in the string(3) manual page)
+differ from UNIX to UNIX (e.g. strtok is not in V7 or 4.1bsd). Worse,
+the sources are not in the public domain, so that if there is a string
+routine which is nearly what you want but not quite you can't take a
+copy and modify it. And of course C programmers on non-UNIX systems
+are at the mercy of their supplier.
+
+This package was designed to let me do reasonable things with C's
+strings whatever UNIX (V7, PaNiX, UX63, 4.1bsd) I happen to be using.
+Everything in the System III manual is here and does just what the S3
+manual says it does. There are also lots of new goodies. I'm sorry
+about the names, but the routines do have to work on asphyxiated-at-
+birth systems which truncate identifiers. The convention is that a
+routine is called
+str [n] [c] <operation>
+If there is an "n", it means that the function takes an (int) "length"
+argument, which bounds the number of characters to be moved or looked
+at. If the function has a "set" argument, a "c" in the name indicates
+that the complement of the set is used. Functions or variables whose
+names start with _ are support routines which aren't really meant for
+general use. I don't know what the "p" is doing in "strpbrk", but it
+is there in the S3 manual so it's here too. "istrtok" does not follow
+this rule, but with 7 letters what can you do?
+
+I have included new versions of atoi(3) and atol(3) as well. They
+use a new primitive str2int, which takes a pair of bounds and a radix,
+and does much more thorough checking than the normal atoi and atol do.
+The result returned by atoi & atol is valid if and only if errno == 0.
+There is also an output conversion routine int2str, with itoa and ltoa
+as interface macros. Only after writing int2str did I notice that the
+str2int routine has no provision for unsigned numbers. On reflection,
+I don't greatly care. I'm afraid that int2str may depend on your "C"
+compiler in unexpected ways. Do check the code with -S.
+
+Several of these routines have "asm" inclusions conditional on the
+VaxAsm option. These insertions can make the routines which have them
+quite a bit faster, but there is a snag. The VAX architects, for some
+reason best known to themselves and their therapists, decided that all
+"strings" were shorter than 2^16 bytes. Even when the length operands
+are in 32-bit registers, only 16 bits count. So the "asm" versions do
+not work for long strings. If you can guarantee that all your strings
+will be short, define VaxAsm in the makefile, but in general, and when
+using other machines, do not define it.
+
+Thanks to someone on the net who saw the first posting of strings,
+and sent me a formatted copy of the System V memory(3C) manual page, I
+have been able to include versions of these routines. The convention
+is that they are called
+mem{operation}([dst,] ... , len)
+where operation is cpy, cmp, chr, and so on, and len is how many bytes
+to move or test. Note that this is different from the strn functions,
+str{operation} -- stop when you find a NUL character
+strn{operation} -- stop when len is exhausted or you find NUL
+mem{operation} -- stop when len is exhausted
+b{operation} -- stop when len is exhausted
+but the b family has different argument orders or different results or
+both. In particular, note that my implementation of bcmp does conform
+to the letter of the 4.2bsd manual page, but I decided to make it give
+a value I have often wanted, which is not like the value of strcmp. As
+the System V manual page is more explicit about the return code memcmp
+DOES return a value like strcmp, so you may prefer to use it. BEWARE:
+the "c" in the name mem-c-cpy doesn't mean what it does in the System3
+names, it's more like mem-chr-cpy.
+
+To use this library, you need the "strings.a" library file and the
+"strings.h" header file. The other header files are for compiling the
+library itself, though if you are hacking extensions you may find them
+useful. General users really shouldn't see them. I've defined a few
+macros I find useful in "strings.h"; if you have no need for "index",
+"rindex", "streql", and "beql", just edit them out. On the 4.1bsd
+system I am using, having all these functions 'extern' does not mean
+that they will all be loaded; only the ones you call are. When using
+lesser systems you may find it necessary to break strings.h up or you
+could get by with just adding "extern" declarations for functions as
+you need them. Note that as many of these functions have names
+matching "standard C library" names (by design, this is after all a
+replacement/reimplementation of part of that library) you may have to
+talk the loader into loading this library first. Again, I've found no
+problems on 4.1bsd.
+
+A note on character comparison. The various UNIX manuals come out
+and say explicitly that the *cmp and *chr routines use the computer's
+"native" character comparison. That is, on a PDP-11, VAX-11, and some
+other machines, signed character comparison is used, and the byte 0377
+will never be located (use -1). On IBM 370s and many other machines,
+unsigned character comparison is used, and the byte -1 can't be found.
+(Use 0377.) If you have occasion to use 8-bit byte values in calls to
+*chr functions, it would be nice if the package looked after making it
+work portably. I thought about that, and decided not to do it, as you
+might *want* to write VAX code that didn't find 128, and might rely on
+the current effect. However, you should be able to use 8-bit values in
+a portable fashion if you ask, and that the package DOES do for you.
+There is a macro
+int2char(c)
+which takes the bottom 8 bits of c on a machine with unsigned character
+comparison or sign-extends them on a machine with signed comparison. It
+is up to you to use this macro in appropriate places. It is up to who-
+ever installs the package to make sure that the right definition is put
+in and the wrong one commented out.
+
+You may wonder at my failure to provide manual pages for this code.
+For the things in V7, 4.?, or SIII, you should be able to use whichever
+manual page came with that system, and anything I might write would be
+so like it as to raise suspicions of violating AT&T copyrights. In the
+sources you will find comments which provide far more documentation for
+these routines than AT&T ever provided for their strings stuff, I just
+don't happen to have put it in nroff -man form. Had I done so, the *.3
+files would have outbulked the .c files!
+
+There is a manual page for the strx family of routines. It was the
+work of Tony Hansen, of AT&T Information Systems Lincroft NJ. It is not
+clear whether I should distribute this manual page or not, but as these
+functions are not likely to documented anywhere else I decided to risk
+it. There is no risk in the *code* however. His posting to net.sources
+arrived at Edinburgh with just the reason for reposting, and the manual
+page. The code is my own work based on his manual page. Indeed, I had
+already written strx[n]mov, using different names.
+
+These files are in the public domain. This includes getopt.c, which
+is the work of Henry Spencer, University of Toronto Zoology, who says of
+it "None of this software is derived from Bell software. I had no access
+to the source for Bell's versions at the time I wrote it. This software
+is hereby explicitly placed in the public domain. It may be used for
+any purpose on any machine by anyone." I would greatly prefer it if *my*
+material received no military use.
+
