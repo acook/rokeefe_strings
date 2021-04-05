@@ -121,11 +121,3 @@ arrived at Edinburgh with just the reason for reposting, and the manual
 page. The code is my own work based on his manual page. Indeed, I had
 already written strx[n]mov, using different names.
 
-These files are in the public domain. This includes getopt.c, which
-is the work of Henry Spencer, University of Toronto Zoology, who says of
-it "None of this software is derived from Bell software. I had no access
-to the source for Bell's versions at the time I wrote it. This software
-is hereby explicitly placed in the public domain. It may be used for
-any purpose on any machine by anyone." I would greatly prefer it if *my*
-material received no military use.
-
